@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+          - docker.io
+          - python3-pip
+          - python3-venv
+          - python3-dev
+    - name: Enable docker
+      systemd:
+        state: started
+        name: docker
+        enabled: yes
+    - name: Install python packeges
+      pip:
+        name:
+          - docker-compose
+          - iroha
