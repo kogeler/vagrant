@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Delete packages
+      apt:
+        name: "{{ packages }}"
+        state: absent
+        update_cache: yes
+        autoremove: yes
+        purge: yes
+      vars:
+        packages:
+          - "liblxc-common"
+          - "liblxc1"
+          - "lxcfs"
+
+    - name: Upgrade packages
+      apt:
+        upgrade: full
+        install_recommends: no
+
+    - name: Install required packages
+      apt:
+        name: "{{ packages }}"
+        install_recommends: no
+      vars:
+        packages:
+          - "aptitude"
+
+    - name: Reboot
+      reboot:

@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.ssh.insert_key = false
+
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.cpus = "4"
+    libvirt.memory = "1024"
+  end
+
+  config.vm.define :ubuntu1804_one do |ubuntu1804_one|
+    ubuntu1804_one.vm.box = "hashicorp/bionic64"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "HELLO"
+  SHELL
+
+  config.vm.provision "ansible" do |ansible|
+      ansible.verbose = "v"
+      ansible.playbook = "init.yml"
+  end
+
+end
