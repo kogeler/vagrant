@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Delete packages
+      apt:
+        name: "{{ packages }}"
+        state: absent
+        autoremove: yes
+        purge: yes
+      vars:
+        packages:
+          - "liblxc-common"
+          - "liblxc1"
+          - "lxcfs"
+          - "snapd"
+
+    - name: Install required packages
+      apt:
+        name: "{{ packages }}"
+        install_recommends: no
+        update_cache: yes
+      vars:
+        packages:
+          - "aptitude"
+          - "wireguard"
+
+    - name: Upgrade packages
+      apt:
+        upgrade: full
+        install_recommends: no
+      register: apt_register
+
+    - name: Reboot
+      reboot:
+      when: apt_register.changed
+
+    - name: Set authorized key taken from file
+      authorized_key:
+        user: vagrant
+        state: present
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDidaukpSD4p04jXWGEswJSQwUjRkaDejequ/H0pHNhHUUtxjtQGahtyFVtee8m6nYvJgAyAEMTxLWyMJlBOTbgRrxE7/yY3tqR4MUrnt4FVS4VXxPoXaucOLSYWZZEmefRgo80QMOBZvFWyoX9r38ti8IC5ggAQFwBO+TSkt3A+yusDC5WDeis38nU9UhT3XXwjofpwCqjL8eG1JJZBXHv/jCCAtRCCbC9aAlRBp6giTf5h4uVu4iCHHw/NzUkNbB7aPk1DsUW75P+XAJ2yv0CFKQurFjiVkjVV2iWhVXVw9X5kO4a1y7n8v4ZXfnO4aolthwzYXWgW0gThZL8s4ePVzo0K+Hc7V4014x0I6mJ9/luZMsY13xfaLHxZoOARIosS4mFzclghIF0spkiyNusvW2rLP6/D50pTd8YGyIiy7RodQTdg2SsN1G2WbIK1MHe2fP+R45hNRvbm4oCnoYgEcxLWyAC6zFv2ih2qjRE4R0dDCVx4kY6U/MoOcEiHvJwJx7LcgVLe1A6u7xJfZr6xiu7uYRJxBGhZTgViDNxBE2LtEV3d1Zs+PaCwrNDeVF6iOETNAfnW8LWgi+KsfdTXkKCBykdHlT3H+pp+OqDWXhqmbEjRUOxpi/ktwB7HNbZResT2fvDcU3A4/V8wHttrSpUgk9wDhFVNcmIMSucVw=="
